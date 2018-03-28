@@ -1,7 +1,6 @@
 require(readxl)
 
-setwd("../FitBit Data")
-myFiles <- list.files(pattern="*.xls")
+myFiles <- list.files(path = "../FitBit Data", pattern="*.xls")
 
 dat <- list()
 
