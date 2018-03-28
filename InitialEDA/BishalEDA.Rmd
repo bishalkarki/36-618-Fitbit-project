@@ -1,0 +1,40 @@
+---
+title: "BishalEDA"
+author: "Bishal Karki"
+date: "March 27, 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = NA)
+```
+
+Load the data by running the other code.
+
+```{r data import}
+timeData2 = timeData
+
+timeData2$Date = as.Date(timeData2$Date)
+for (ii in 2:(ncol(timeData2))) {
+  timeData2[,ii] = as.numeric(gsub(",","",timeData2[,ii]))
+}
+
+seriesTs = ts(timeData2)
+```
+
+```{r EDA}
+
+varsEDA = seriesTs[,c("Calories Burned", "Minutes Sedentary", "Activity Calories", "Minutes Lightly Active")]
+plot(varsEDA[,1], col = "black", ylab = "Calories Burned")
+plot(varsEDA[,2], col = "blue", ylab = "Calories Burned")
+plot(varsEDA[,3], col = "green", ylab = "Calories Burned")
+plot(varsEDA[,4], col = "red", ylab = "Calories Burned")
+
+cor(varsEDA[,1],varsEDA[,2])
+cor(varsEDA[,1],varsEDA[,3])
+cor(varsEDA[,1],varsEDA[,4])
+cor(varsEDA[,4],varsEDA[,3])
+```
+
+
