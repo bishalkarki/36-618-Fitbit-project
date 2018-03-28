@@ -22,6 +22,8 @@ trellis.par.set(theme=theme.mosaic()) # change default color scheme for lattice
 knitr::opts_chunk$set(
   tidy=FALSE,     # display code as typed
   size="small")   # slightly smaller font for code
+
+source("ReadDataEDA.R")
 ```
 
 Delete this sentence and enter your text here.
