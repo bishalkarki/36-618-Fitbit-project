@@ -18,7 +18,7 @@ clean_fitbit_column <- function(column){
     
 }
 
-read_fitbit_data <- function(path, pattern = "*.xls"){
+read_fitbit_data <- function(path, sheet = 2, pattern = "*.xls"){
     
     # load required package
     if (!require('readxl')){
@@ -30,10 +30,10 @@ read_fitbit_data <- function(path, pattern = "*.xls"){
     myFiles <- list.files(path = path, pattern = pattern)
     
     # create a list that stores individual datasets for each file
-    dat = list()
+    dat <- list()
     for (i in 1:length(myFiles)){
         current <- paste(path, "/", myFiles[i], sep = "")
-        dat[[i]] <- read_excel(current, sheet = 2)
+        dat[[i]] <- read_excel(current, sheet = sheet)
     }
     
     # merge the list into a single data frame
