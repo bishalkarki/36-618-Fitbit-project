@@ -26,13 +26,34 @@ knitr::opts_chunk$set(
   tidy=FALSE,     # display code as typed
   size="small")   # slightly smaller font for code
 
-path <- "../../"
 source("../ReadData.R")
-```
 
-```{r}
-ts <- ts(timeData)
-ggtsdisplay(ts)
+ds1 <- read_fitbit_data("../../FitBit Data/", sheet = 1)
+ds2 <- read_fitbit_data("../../FitBit Data/", sheet = 2)
+
+timeDat <- merge(ds1, ds2, by = c("Date"))
+timeDat <- ts(timeDat)
+
+ggplot(timeDat, aes(MinutesFairlyActive)) + geom_histogram()
+
+ggplot(timeDat, aes(BMI, MinutesFairlyActive)) + geom_point()
+
+ggplot(timeDat, aes(BMI, Steps)) + geom_point()
+
+ggplot(timeDat, aes(CaloriesBurned, Steps)) + geom_point()
+
+ggplot(timeDat, aes(Date, MinutesFairlyActive)) + geom_point()
+
+ggplot(timeDat, aes(Date, Steps)) + geom_point()
+
+
+fairlyActiveDat <- ts(timeDat$MinutesFairlyActive, start = c(2015,12,1), 
+                      frequency = 7)
+ggtsdisplay(fairlyActiveDat)
+
+stepsDat <- ts(timeDat$Steps, start = c(2015,12,1), 
+                      frequency = 7)
+ggtsdisplay(stepsDat)
 ```
 
 
