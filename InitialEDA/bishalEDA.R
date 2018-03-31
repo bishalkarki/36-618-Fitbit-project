@@ -1,18 +1,3 @@
----
-title: "BishalEDA"
-author: "Bishal Karki"
-date: "March 27, 2018"
-output: html_document
----
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE,
-                      comment = NA)
-```
-
-Load the data by running the other code.
-
-```{r sourced functions, fig.height=6, fig.width=9}
 #Load the data by running the other code.
 source("../ReadData.R")
 sheet1 = read_fitbit_data("../../FitBit Data/", sheet = 1)
@@ -23,9 +8,7 @@ org_data$MinutesSedentary2 = (org_data$MinutesSedentary -
                                 mean(org_data$MinutesSedentary))
 rm(sheet2, sheet1)
 library('dplyr')
-library('car')
-library("vars")
-library('tseries')
+
 
 df1 = org_data[25:nrow(org_data),]
 
@@ -72,32 +55,28 @@ lineStyle = 1:7
 plot(dfMerged$CaloriesBurned, type = "l")
 
 # Daily Plot
-par(xpd=TRUE)
 plot(Monday$CaloriesBurned, type = "l", col = colors[2], lty = lineStyle[2],
-     ylim = c(2000,4500), main = "Day of week calories plot")
+     main = "Day of week calories plot")
 lines(Sunday$CaloriesBurned, col = colors[1], lty = lineStyle[1])
 lines(Tuesday$CaloriesBurned, col = colors[3], lty = lineStyle[3])
 lines(Wednesday$CaloriesBurned, col = colors[4], lty = lineStyle[4])
 lines(Thursday$CaloriesBurned, col = colors[5], lty = lineStyle[5])
 lines(Friday$CaloriesBurned, col = colors[6], lty = lineStyle[6])
 lines(Saturday$CaloriesBurned, col = colors[7], lty = lineStyle[7])
-legend(100,4600, legend = days, col = colors, lty = lineStyle)
+legend(90,2620, legend = days, col = colors, lty = lineStyle)
 
 
 
 # Monthly-dayofweek Plot
-par(xpd=TRUE)
-colors = c("green", "chocolate4", "brown4", "blue4", "azure4", "aquamarine4"
-           , "darkviolet")
 plot(Sunday$avg_cal_MW, col = "green", type = "l", lty = lineStyle[1],
-     ylim = c(2000,4500), main = "Monthly average for day of week calories plot")
+     main = "Monthly average for day of week calories plot")
 lines(Monday$avg_cal_MW, col = "chocolate4", lty = lineStyle[2])
 lines(Tuesday$avg_cal_MW, col = "brown4", lty = lineStyle[3])
 lines(Wednesday$avg_cal_MW, col = "blue4", lty = lineStyle[4])
 lines(Thursday$avg_cal_MW, col = "azure4", lty = lineStyle[5])
 lines(Friday$avg_cal_MW, col = "aquamarine4", lty = lineStyle[6])
 lines(Saturday$avg_cal_MW, col = "darkviolet", lty = lineStyle[7])
-legend(100,4600, legend = days, col = colors, lty = lineStyle)
+legend(90,2620, legend = days, col = colors, lty = lineStyle)
 
 
 #Calories burnt patterns over different averaged times
@@ -134,23 +113,20 @@ legend(1, 900, legend = c("Quarterly", "Monthly", "Weekly"),
 plot(dfMerged$MinutesSedentary, type = "l", xlim =  xlim, ylim = ylim)
 
 plot(dfMerged$CaloriesBurned, dfMerged$MinutesSedentary)
-```
 
-
-```{r model EDA}
 firstModel = step(lm(CaloriesBurned ~ MinutesSedentary2 + MinutesLightlyActive +
                   MinutesFairlyActive + 
                     MinutesVeryActive + BMI_centered, data = dfMerged),
                   direction = "both")
 summary(firstModel)
-vif(firstModel)
 
-```
-
-
-```{r model VAR}
+car::vif(firstModel)
 
 # Multivariate model and testing causality
+install.packages("vars")
+library("vars")
+library('tseries')
+
 varData = dfMerged[, c("CaloriesBurned", "MinutesSedentary2", 
                               "MinutesLightlyActive", "MinutesFairlyActive",
                               "MinutesVeryActive", "BMI_centered")]
@@ -194,7 +170,4 @@ for (i in 1:ncol(varData)){
 varData$BMI = c(diff(varData$BMI_centered)[1],diff(varData$BMI_centered))
 
 # building model
-# varModel = VAR(varData, type = "const", lag.max = 20, ic = 'HQ')
-
-
-```
+varModel = VAR(varData, type = "const", lag.max = 20, ic = 'HQ')
