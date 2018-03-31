@@ -1,0 +1,112 @@
+---
+title: "Time Series project"
+author: "Qin Pu"
+date: "3/26/2018"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r read.data}
+if(!require("readxl")){
+  install.packages("readxl")
+  library("readxl")
+}
+setwd("~/Dropbox/MSP/2nd semester/time series/Fitbit project/FitBit Data")
+filenames = list.files(pattern="*.xls")
+df = lapply(filenames, function(x) read_xls(x, sheet=2))
+fitbit = do.call(rbind, df)
+```
+
+```{r steps}
+if(!require("forecast")){
+  install.packages("forecast")
+  library("forecast")
+}
+if(!require("ggplot2")){
+  install.packages("ggplot2")
+  library("ggplot2")
+}
+if(!require("vars")){
+  install.packages("vars")
+  library("vars")
+}
+library(tseries)
+for(i in 2:ncol(fitbit)){
+  fitbit[i] = lapply(fitbit[i], function(x) gsub("[,]", "", x))
+  fitbit[i] = lapply(fitbit[i], function(x) as.numeric(x))
+}
+
+
+calorie_burned = ts(fitbit$`Calories Burned`, start=c(2015,12,1), frequency=7)
+plot.ts(calorie_burned)
+tsdisplay(calorie_burned)
+
+# steps more than 20000
+step.2000 = fitbit[which(fitbit$Steps>20000),]
+# steps = 0
+step.0 = fitbit[which(fitbit$Steps==0),] 
+#start to wear fitbit on 12.25
+
+# delete data before then
+fitbit.new = fitbit[which(fitbit$Steps!=0),]
+calorie_burned = ts(fitbit.new$`Calories Burned`)
+plot.ts(calorie_burned)
+tsdisplay(calorie_burned)
+
+
+```
+
+```{r modeling}
+X = calorie_burned
+tsdisplay(X)
+tsdisplay(diff(X, 7)) # better
+
+adf.test(diff(X,7), alternative="stationary", k=0)
+sarima202112 = Arima(X, order = c(2, 0, 2), seasonal=list(order=c(1,1,2), period=7))
+sarima202111 = Arima(X, order = c(2, 0, 2), seasonal=list(order=c(1,1,1), period=7))
+sarima202113 = Arima(X, order = c(2, 0, 2), seasonal=list(order=c(1,1,3), period=7))
+AIC(sarima202111, sarima202112, sarima202113) #sarima202112
+BIC(sarima202111, sarima202112, sarima202113) #sarima202111
+
+# choose sarima101111
+tsdisplay(sarima202111$residuals)
+diag = function(x){
+  # test for constant variance
+  plot(as.vector(fitted(x)), x$residuals, main="Residual Plot")
+  abline(h=0, lty=2)
+  # assessing normality
+  qqnorm(x$residuals)
+  qqline(x$residuals)
+}
+diag(sarima202111)
+
+#Box.test(sarima202111$residuals, 1, type="Ljung-Box", fitdf=14)
+sarima_2 = Arima(X[1:(length(X)-60)], order = c(2, 0, 2), seasonal=list(order=c(1,1,1), period=7))
+last60 = forecast(sarima_2, 60, level = c(60, 80, 95))
+plot(last60)
+points(ts(X, start=length(calorie_burned)-60+1), end=length(calorie_burned), pch=16, cex=.5)
+```
+
+```{r step}
+# set up time
+fitbit.new$Date = as.Date(fitbit.new$Date)
+fitbit.new$day_of_week = weekdays(fitbit.new$Date)
+fitbit.new$week = strftime(fitbit.new$Date, format = "%V")
+fitbit.new$month = months(fitbit.new$Date)
+fitbit.new$year =  as.numeric(substr(fitbit.new$Date,1,4))
+fitbit.new$quarters = paste(fitbit.new$year,quarters(fitbit.new$Date),sep = "-")
+weekday = fitbit.new[which(fitbit.new$day_of_week==c("Monday","Tuesday","Wednesday", "Thursday", "Friday")),]
+weekend = fitbit.new[which(fitbit.new$day_of_week==c("Saturday", "Sunday")),]
+plot(weekday$`Calories Burned`, type = "l", col = "red", lty = 1,
+     ylim = c(2000,4500), main = "Day of week calories plot")
+lines(weekend$`Calories Burned`, col = "black", lty = 2)
+legend(80,4600, legend = c("weekday", "weekend"), col =c("red", "black"), lty =1:2) 
+#test stationary
+step = ts(fitbit.new$Steps)
+tsdisplay(step)
+adf.test(step) 
+summary(step)
+summary(lm(fitbit.new$`Calories Burned`~fitbit.new$Steps))
+ggplot(fitbit.new, aes(x=Steps, y=`Calories Burned`)) + geom_point() + geom_smooth()
+```
