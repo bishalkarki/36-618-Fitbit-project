@@ -1,7 +1,7 @@
 ---
-title: "Untitled"
-author: ""
-date: ""
+title: "36-618 FitBit Project"
+author: "Melody Owen"
+date: "March 28, 2018"
 output: 
   pdf_document:
     fig_height: 3
@@ -15,7 +15,10 @@ output:
 ---
 
 ```{r, setup, include=FALSE}
-require(mosaic)   # Load additional packages here 
+require(mosaic)   # Load additional packages here
+require(forecast)
+require(tseries)
+require(ggplot2)
 
 # Some customization.  You can alter or delete as desired (if you know what you are doing).
 trellis.par.set(theme=theme.mosaic()) # change default color scheme for lattice
@@ -23,7 +26,34 @@ knitr::opts_chunk$set(
   tidy=FALSE,     # display code as typed
   size="small")   # slightly smaller font for code
 
-source("ReadDataEDA.R")
+source("../ReadData.R")
+
+ds1 <- read_fitbit_data("../../FitBit Data/", sheet = 1)
+ds2 <- read_fitbit_data("../../FitBit Data/", sheet = 2)
+
+timeDat <- merge(ds1, ds2, by = c("Date"))
+timeDat <- ts(timeDat)
+
+ggplot(timeDat, aes(MinutesFairlyActive)) + geom_histogram()
+
+ggplot(timeDat, aes(BMI, MinutesFairlyActive)) + geom_point()
+
+ggplot(timeDat, aes(BMI, Steps)) + geom_point()
+
+ggplot(timeDat, aes(CaloriesBurned, Steps)) + geom_point()
+
+ggplot(timeDat, aes(Date, MinutesFairlyActive)) + geom_point()
+
+ggplot(timeDat, aes(Date, Steps)) + geom_point()
+
+
+fairlyActiveDat <- ts(timeDat$MinutesFairlyActive, start = c(2015,12,1), 
+                      frequency = 7)
+ggtsdisplay(fairlyActiveDat)
+
+stepsDat <- ts(timeDat$Steps, start = c(2015,12,1), 
+                      frequency = 7)
+ggtsdisplay(stepsDat)
 ```
 
-Delete this sentence and enter your text here.
+
