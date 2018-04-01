@@ -21,16 +21,24 @@ df1$quarters = paste(df1$year,quarters(df1$Date),sep = "-")
 
 dfMonthWeek = df1 %>%  group_by(year, month, day_of_week) %>% 
   summarize(avg_cal_MW = mean(CaloriesBurned),
-            avg_sed_min_MW = mean(MinutesSedentary))
+            avg_sed_min_MW = mean(MinutesSedentary),
+            avg_activity_cal_MW = mean(ActivityCalories),
+            avg_mins_v_active_MW = mean(MinutesVeryActive))
 dfWeek = df1 %>%  group_by(year, month, week) %>% 
   summarize(avg_cal_W = mean(CaloriesBurned),
-            avg_sed_min_W = mean(MinutesSedentary))
+            avg_sed_min_W = mean(MinutesSedentary),
+            avg_activity_cal_W = mean(ActivityCalories),
+            avg_mins_v_active_W = mean(MinutesVeryActive))
 dfMonth = df1 %>%  group_by(year, month) %>% 
   summarize(avg_cal_M = mean(CaloriesBurned),
-            avg_sed_min_M = mean(MinutesSedentary))
+            avg_sed_min_M = mean(MinutesSedentary),
+            avg_activity_cal_M = mean(ActivityCalories),
+            avg_mins_v_active_M = mean(MinutesVeryActive))
 dfQuarter = df1 %>%  group_by(quarters) %>% 
   summarize(avg_cal_Q = mean(CaloriesBurned),
-            avg_sed_min_Q = mean(MinutesSedentary))
+            avg_sed_min_Q = mean(MinutesSedentary),
+            avg_activity_cal_Q = mean(ActivityCalories),
+            avg_mins_v_active_Q = mean(MinutesVeryActive))
 
 
 dfMerged = merge(merge(merge(merge(df1, dfMonth, by = c("year", "month"), all.x = TRUE),
@@ -55,7 +63,7 @@ lineStyle = 1:7
 plot(dfMerged$CaloriesBurned, type = "l")
 
 # Daily Plot
-plot(Monday$CaloriesBurned, type = "l", col = colors[2], lty = lineStyle[2],
+plot(Monday$CaloriesBurned, type = "l", col = colors[2], lty = lineStyle[2], pch = lineStyle[7], 
      main = "Day of week calories plot")
 lines(Sunday$CaloriesBurned, col = colors[1], lty = lineStyle[1])
 lines(Tuesday$CaloriesBurned, col = colors[3], lty = lineStyle[3])
