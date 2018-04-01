@@ -256,6 +256,7 @@ prd = predict(varModel3, n.ahead = 30, ci = 0.95, dumvar = NULL)
 varModel3$p
 
 plot(prd)
+fanchart(prd, plot.type = c("multiple"))
 
 # #______________________________________________
 # # all variables stationary -"CaloriesBurned", "MinutesSedentary", "ActivityCalories", "MinutesVeryActive"
