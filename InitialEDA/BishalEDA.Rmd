@@ -79,7 +79,8 @@ colors = 1:7
 lineStyle = 1:7
 
 #plot calories burnt
-plot(dfMerged$CaloriesBurned, type = "l")
+plot(dfMerged$CaloriesBurned, type = "l", main = "Daily calories burnt", 
+     xlab = "Days", ylab = "Calories burnt")
 
 # Daily Plot
 
@@ -254,7 +255,7 @@ prd = predict(varModel3, n.ahead = 30, ci = 0.95, dumvar = NULL)
 
 varModel3$p
 
-varModel3
+plot(prd)
 
 # #______________________________________________
 # # all variables stationary -"CaloriesBurned", "MinutesSedentary", "ActivityCalories", "MinutesVeryActive"
